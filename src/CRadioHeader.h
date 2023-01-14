@@ -19,5 +19,6 @@ public:
 
     uint get80211Length();
     int getsignalPower();
-    char* getFloodPacket();
+    bool getFloodPacket(char* packet);
+    int getFloodPacketSize();
 };

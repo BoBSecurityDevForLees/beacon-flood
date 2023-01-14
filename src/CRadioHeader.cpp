@@ -4,10 +4,10 @@
 C80211RadioHeader::C80211RadioHeader()
 {
     // All member Zero
-    this->it_version = 0;
-    this->it_pad = 0;
-    this->it_len = 8;
-    this->it_present = 0;
+    this->it_version = 0x00;
+    this->it_pad = 0x00;
+    this->it_len = 0x08;
+    this->it_present = 0x00;
 }
 
 // parsing Initializer
@@ -40,9 +40,19 @@ int C80211RadioHeader::getsignalPower()
     return this->it_signalPW;
 }
 
-char* C80211RadioHeader::getFloodPacket()
+bool C80211RadioHeader::getFloodPacket(char* packet)
 {
-    char* packet = (char*)malloc(this->it_len);
-    sprintf(packet,"%02x%02x%04x%08x", this->it_version, this->it_pad, this->it_len, this->it_present);
-    return packet;
+    char innerPacket[this->it_len];
+    innerPacket[0] = this->it_version;
+    innerPacket[1] = this->it_pad;
+    memcpy(&innerPacket[2], &this->it_len, 2);
+    memcpy(&innerPacket[4], &this->it_present, 4);
+
+    memcpy(&packet[0], innerPacket, this->it_len);
+    return true;
+}
+
+int C80211RadioHeader::getFloodPacketSize()
+{
+    return this->it_len;
 }
