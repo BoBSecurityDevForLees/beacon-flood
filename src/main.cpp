@@ -1,5 +1,9 @@
 #include <iostream>
+#include <fstream>
 #include <pcap.h>
+#include "CRadioHeader.h"
+#include "CBeaconFrame.h"
+#include "CWirelessManagement.h"
 
 void usage()
 {
@@ -11,6 +15,12 @@ void printErrorInterface(char* strErr)
 {
     std::cerr << strErr << std::endl;
     std::cerr << "Check  Interface Or Permission" << std::endl;
+}
+
+void printErrorSSIDFile(char* strFilePath)
+{
+    std::cerr << strFilePath << "경로의 파일을 읽을 수 없습니다." << std::endl;
+    std::cerr << "파일 명과 경로를 확인 후 다시 입력해주세요." << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -33,7 +43,58 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    
+    std::ifstream ifs(argv[2]);
+    if(ifs.fail())
+    {
+        printErrorSSIDFile(argv[2]);
+        return -1;
+    }
+
+    // SSID를 담을 벡터
+    std::vector<std::string> vecSSIDList;
+    std::string strSSID;
+    strSSID.resize(255);
+    while(ifs.getline(&strSSID[0], 255))
+    {
+        std::cout << strSSID << std::endl;
+        vecSSIDList.push_back(strSSID);
+    }
+
+    // beacon Flooding을 유발할 패킷 리스트
+    std::vector<u_char*> vecBeaconFloodingPacketList;
+
+    for(int i = 0; i < vecSSIDList.size(); i++)
+    {
+        u_char* packet;
+        // 패킷을 구성하는 클래스 생성
+        C80211RadioHeader radioHeader = C80211RadioHeader();
+        C80211BeaconFrame beaconFrame = C80211BeaconFrame();
+        CWirelessManagement wirelessManagement = CWirelessManagement();
+
+        // 각종 정보 로딩 완료
+        char* strRadioHeader = radioHeader.getFloodPacket();
+        int strRadioHeaderSize = malloc_usable_size(strRadioHeader);
+        char* strBeaconFrame = beaconFrame.getFloodBeaconFrame();
+        int strBeaconFrameSize = malloc_usable_size(strBeaconFrame);
+        char* strWirelessManagement = wirelessManagement.getFloodPacket(vecSSIDList[i].c_str());
+        int strWirelessManagementSize = malloc_usable_size(strWirelessManagement);
+
+        int totalPacketByte =  + strRadioHeaderSize + strBeaconFrameSize + strWirelessManagementSize;
+
+        packet = (u_char*)malloc(totalPacketByte);
+        memcpy(packet, strRadioHeader, strRadioHeaderSize);
+        free(strRadioHeader);
+        memcpy(&packet[strRadioHeaderSize], strBeaconFrame, strBeaconFrameSize);
+        free(strBeaconFrame);
+        memcpy(&packet[strRadioHeaderSize + strBeaconFrameSize], strWirelessManagement, strWirelessManagementSize);
+        free(strWirelessManagement);
+        vecBeaconFloodingPacketList.push_back(packet);
+    }
+
+    while(true)
+    {
+
+    }
 
     return 0;
 }

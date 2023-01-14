@@ -72,7 +72,7 @@ int CWirelessManagement::getChannel()
     return this->channel;
 }
 
-char* CWirelessManagement::getFloodPacket(char* strSSID)
+char* CWirelessManagement::getFloodPacket(const char* strSSID)
 {
     int fixedDataLen = 12;
     // set fixedData to fixed data

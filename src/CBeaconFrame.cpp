@@ -75,9 +75,3 @@ char* C80211BeaconFrame::getFloodBeaconFrame()
     packetBeacon[23] = 0x38;
     return packetBeacon;
 }
-
-int C80211BeaconFrame::getBeaconPacketLength()
-{
-    int len = 24;
-    return len;
-}

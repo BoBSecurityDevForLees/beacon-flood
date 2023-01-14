@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <fstream>
 #include <random>
 #include <cstring>
 #include <string>
@@ -75,5 +74,5 @@ public:
 
     char* getSSID();
     int getChannel();
-    char* getFloodPacket(char* strSSID);
+    char* getFloodPacket(const char* strSSID);
 };

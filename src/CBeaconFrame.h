@@ -21,5 +21,4 @@ public:
     char* getSourceAddress();
     char* getBSSID();
     char* getFloodBeaconFrame();
-    int getBeaconPacketLength();
 };
