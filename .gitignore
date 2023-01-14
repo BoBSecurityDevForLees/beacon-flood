@@ -1,0 +1,8 @@
+# 빌드 파일
+build/*
+build
+
+# CMake 임시파일
+cmake-temp/*
+cmake-temp
+
