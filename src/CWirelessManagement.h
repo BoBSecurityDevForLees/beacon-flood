@@ -1,9 +1,12 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
+#include <random>
 #include <cstring>
 #include <string>
 #include <vector>
+#include <malloc.h>
 
 typedef std::basic_string<wchar_t> wstring;
 
@@ -63,12 +66,14 @@ private:
     char* strSupportRates;
     int channel;
 
+    bool setChannel();
 
 public:
-    CWirelessManagement(const u_char* packet);
+    CWirelessManagement();                      // Flooding을 위한 생성자
+    CWirelessManagement(const u_char* packet);  // Parsing을 위한 생성자
     ~CWirelessManagement();
 
     char* getSSID();
     int getChannel();
-
+    char* getFloodPacket(char* strSSID);
 };

@@ -64,9 +64,13 @@ char* C80211BeaconFrame::getFloodBeaconFrame()
     // Beacon Signal
     packetBeacon[0] = 128;
     packetBeacon[1] = 0;
+    
+    // Destination, SourceAddress, BSSID
     memcpy(&packetBeacon[2], this->strDestinationAddress, 6);
     memcpy(&packetBeacon[8], this->strSourceAddress, 6);
     memcpy(&packetBeacon[14], this->strBSSID, 6);
+    
+    // Fragment, sequence number
     packetBeacon[22] = 0xC0;
     packetBeacon[23] = 0x38;
     return packetBeacon;
@@ -74,5 +78,6 @@ char* C80211BeaconFrame::getFloodBeaconFrame()
 
 int C80211BeaconFrame::getBeaconPacketLength()
 {
-    return 24;
+    int len = 24;
+    return len;
 }
