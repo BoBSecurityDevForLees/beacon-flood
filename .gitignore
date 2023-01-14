@@ -6,3 +6,5 @@ build
 cmake-temp/*
 cmake-temp
 
+# test용 SSID List File
+SSIDList.txt
