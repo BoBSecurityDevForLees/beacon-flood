@@ -58,12 +58,12 @@ char* C80211BeaconFrame::getBSSID()
     return this->strBSSID;
 }
 
-char* C80211BeaconFrame::getFloodBeaconFrame()
+bool C80211BeaconFrame::getFloodBeaconFrame(char* packet)
 {
-    char* packetBeacon = (char*)malloc(24);
+    char packetBeacon[24] = {0x00, };
     // Beacon Signal
-    packetBeacon[0] = 128;
-    packetBeacon[1] = 0;
+    packetBeacon[0] = 0x80;
+    packetBeacon[1] = 0x00;
     
     // Destination, SourceAddress, BSSID
     memcpy(&packetBeacon[2], this->strDestinationAddress, 6);
@@ -73,5 +73,14 @@ char* C80211BeaconFrame::getFloodBeaconFrame()
     // Fragment, sequence number
     packetBeacon[22] = 0xC0;
     packetBeacon[23] = 0x38;
-    return packetBeacon;
+
+    // 내부 값에서 전달받은 포인터로 값 복사
+    memcpy(&packet[0], packetBeacon, 24);
+
+    return true;
+}
+
+int C80211BeaconFrame::getFloodBeaconFrameSize()
+{
+    return 24;
 }

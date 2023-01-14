@@ -20,5 +20,6 @@ public:
     char* getDestinationAddress();
     char* getSourceAddress();
     char* getBSSID();
-    char* getFloodBeaconFrame();
+    bool getFloodBeaconFrame(char* packet);
+    int getFloodBeaconFrameSize();
 };
