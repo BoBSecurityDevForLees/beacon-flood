@@ -25,6 +25,42 @@ void printErrorSSIDFile(char* strFilePath)
     std::cerr << "파일 명과 경로를 확인 후 다시 입력해주세요." << std::endl;
 }
 
+bool change80211Channel(char* interface)
+{
+    std::string command;
+    command.append("sudo iwconfig ");
+    command.append(interface);
+    command.append(" channel 8");
+    int res = system(command.c_str());
+    if(res == 0)
+        return true;
+    else
+        return false;
+}
+
+void printChangeChannelError()
+{
+    std::cerr << "Can't Cange 802.11 Channel." << std::endl;
+}
+
+void sendBeaconFrame(pcap_t* handle, std::vector<std::string> vecSSID ,std::vector<CBeaconFlood> beaconFrame)
+{
+    for(int i =0; i < beaconFrame.size(); i++)
+    {
+        u_char* packetD = beaconFrame[i].getFloodPacket();
+        int len =  beaconFrame[i].getFloodPacketSize();
+
+        for(int k = 0; k < 1000; k++)
+        {
+            int res = pcap_sendpacket(handle, reinterpret_cast<const u_char*>(packetD), len);
+            if(res != 0)
+                std::cerr << "Error Can't Send Packet" << std::endl;
+        }
+        std::cout << vecSSID[i] << "Packet Send 1000 times." << std::endl;
+    }
+    sleep(1);
+}
+
 int main(int argc, char* argv[])
 {
     // 만약 인자로 인터페이스를 제공하지 않았을 경우
@@ -61,6 +97,13 @@ int main(int argc, char* argv[])
         vecSSIDList.push_back(strSSID);
 
     ifs.close();
+    
+    if(!change80211Channel(interface))
+    {
+        printChangeChannelError();
+        return -1;
+    }
+
     // beacon Flooding을 유발할 패킷 리스트
     std::vector<CBeaconFlood> vecBeaconFloodingPacketList;
 
@@ -102,27 +145,7 @@ int main(int argc, char* argv[])
     }
 
     while(true)
-    {
-        for(int i =0; i < vecBeaconFloodingPacketList.size(); i++)
-        {
-            u_char* packetD = vecBeaconFloodingPacketList[i].getFloodPacket();
-            int len =  vecBeaconFloodingPacketList[i].getFloodPacketSize();
+        sendBeaconFrame(handle, vecSSIDList, vecBeaconFloodingPacketList);
 
-            // for(int i = 0; i < len; i++)
-            //     printf("%02x ", (u_char)packetD[i]);
-            // std::cout << std::endl;
-
-            for(int k = 0; k < 1000; k++)
-            {
-                int res = pcap_sendpacket(handle, reinterpret_cast<const u_char*>(packetD), len);
-                if(res != 0)
-                    std::cerr << "Error" << std::endl;
-            }
-            
-            std::cout << "SSID: " << vecSSIDList[i] <<  std::endl;
-            // return 0;
-        }
-        sleep(1);
-    }
     return 0;
 }
