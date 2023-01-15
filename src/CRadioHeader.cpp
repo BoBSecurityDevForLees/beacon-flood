@@ -7,23 +7,17 @@ C80211RadioHeader::C80211RadioHeader()
     this->it_version = 0x00;
     this->it_pad = 0x00;
     this->it_len = 24;
-    u_char presentFlag[8] = { 0x2e, 0x40, 0x00, 0xa0, 0x20, 0x08, 0x00, 0x00 };
-    memcpy(&this->it_present, presentFlag, 8);
-}
 
-// parsing Initializer
-C80211RadioHeader::C80211RadioHeader(const u_char* packet)
-{
-    // version
-    memcpy(&this->it_version, &packet[0], 1);
-    // pad
-    memcpy(&this->it_pad, &packet[1], 1);
-    // len
-    memcpy(&this->it_len, &packet[2], 2);
-    // present
-    memcpy(&this->it_present, &packet[4], 4);
-    // signal
-    memcpy(&this->it_signalPW, &packet[18], 1);
+    u_char present[8] = { 0x2e, 0x40, 0x00, 0xa0, 0x20, 0x08, 0x00, 0x00};
+    memcpy(&this->it_present, present, 8);
+
+    this->it_flag = 0x00;
+    this->it_data_rate = 0x02;
+    this->it_channelFrequency = 0x098f;
+    this->it_channelflag = 0x00a0;
+    this->it_signalPW = 0xd1;
+    this->it_rx_flag = 0x0000;
+    this->it_antenna = 0;
 }
 
 C80211RadioHeader::~C80211RadioHeader()
@@ -31,41 +25,30 @@ C80211RadioHeader::~C80211RadioHeader()
 
 }
 
-uint C80211RadioHeader::get80211Length()
-{
-    return this->it_len;
-}
-
-int C80211RadioHeader::getsignalPower()
-{
-    return this->it_signalPW;
-}
-
 bool C80211RadioHeader::getFloodPacket(char* packet)
 {
-    char innerPacket[this->it_len];
-    innerPacket[0] = this->it_version;
-    innerPacket[1] = this->it_pad;
-    memcpy(&innerPacket[2], &this->it_len, 2);
-    memcpy(&innerPacket[4], &this->it_present, 8);
+    packet[0] = this->it_version;
+    packet[1] = this->it_pad;
+    memcpy(&packet[2], &this->it_len, 2);
+    memcpy(&packet[4], &this->it_present, 8);
     
-    innerPacket[12] = 0x00;             // Flags
-    innerPacket[13] = 0x12;             // Data Rate
+    packet[12] = this->it_flag;
+    packet[13] = this->it_data_rate;
     
-    u_char channelFrequency[2] = { 0x87, 0x09 };
-    memcpy(&innerPacket[14], channelFrequency, 2);
+    memcpy(&packet[14], &this->it_channelFrequency, 2);
 
-    u_char channelFlags[2] = { 0xa0, 0x00 };
-    memcpy(&innerPacket[16], channelFlags, 2);
+    memcpy(&packet[16], &this->it_channelflag, 2);
 
-    innerPacket[18] = 0xd1;             // Antenna Signal
-    char rxflag[2] = { 0x00, 0x00 };
-    memcpy(&innerPacket[20], rxflag, 2);
+    packet[18] = this->it_signalPW;
+    packet[19] = this->it_antenna;              
+    memcpy(&packet[20], &this->it_rx_flag, 2);
 
-    innerPacket[22] = 0xd1;             // Antenna Signale
+    packet[22] = this->it_signalPW;             // Antenna Signale
+    packet[23] = this->it_antenna;
 
-    innerPacket[23] = 0x00;
-    memcpy(&packet[0], innerPacket, this->it_len);
+    for(int i =0; i < 24; i++)
+        printf("%02x ", (u_char)packet[i]);
+    std::cout << std::endl;
     return true;
 }
 

@@ -9,16 +9,19 @@ private:
     uint8_t it_version;
     uint8_t it_pad;
     uint16_t it_len;
-    uint32_t it_present;
+    uint64_t it_present;
+    uint8_t it_flag;
+    uint8_t it_data_rate;
+    uint16_t it_channelFrequency;
+    uint16_t it_channelflag;
     int8_t it_signalPW;
+    uint16_t it_rx_flag;
+    uint8_t it_antenna;
 
 public:
-    C80211RadioHeader();                            // Flooding을 위한 생성자
-    C80211RadioHeader(const u_char* packet);        // Parsing을 위한 생성자
+    C80211RadioHeader();                            
     ~C80211RadioHeader();
 
-    uint get80211Length();
-    int getsignalPower();
     bool getFloodPacket(char* packet);
     int getFloodPacketSize();
 };
