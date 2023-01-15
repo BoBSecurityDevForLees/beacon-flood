@@ -1,8 +1,9 @@
 #include "CWirelessManagement.h"
 
 // Flooding을 위한 생성자
-CWirelessManagement::CWirelessManagement()
+CWirelessManagement::CWirelessManagement(int strSSIDLen)
 {
+    this->strSSIDLen = strSSIDLen;
     // 보낼 채널정보만 설정
     this->setChannel();
 }
@@ -72,52 +73,56 @@ int CWirelessManagement::getChannel()
     return this->channel;
 }
 
-char* CWirelessManagement::getFloodPacket(const char* strSSID)
+int CWirelessManagement::getFloodPacketLen()
+{
+    return 12 + this->strSSIDLen + 2 + 10 + 3;
+}
+
+bool CWirelessManagement::getFloodPacket(const char* strSSID, char* packet)
 {
     int fixedDataLen = 12;
     // set fixedData to fixed data
     u_char strFixedData[12] = { 0x26, 0xc0, 0x51, 0x83, 0xa9, 0x0c, 0x00, 0x00, 0x64, 0x00, 0x11, 0x0c };
     
     // TagID = 0(SSID)
-    // SSID값 삽입.
-    int strSSIDlen = strlen(strSSID);
-    int packetSSIDLen = strSSIDlen + 2;
+    int packetSSIDLen = this->strSSIDLen + 2;
 
     // TagID = 1(Supported Rates)
     // set Supported Rates to fixed data
     // 1, 2, 5.5, 6, 9, 12, 18
     int packetSupportedRatesLen = 10;
     u_char strSupportedRates[8] = { 0x82, 0x84,  0x8b, 0x96, 0x0c, 0x12, 0x18, 0x24};
-    // memcpy(& , strSupportedRates, 8);
 
     // TagId = 3(Channel)
     int packetChannelLen = 3;
     // 생성자를 통해 미리 채널정보를 입력해둠.
-    
-    char* packetWirelessManagement;
-    packetWirelessManagement = (char*)malloc(fixedDataLen + packetSSIDLen + packetSupportedRatesLen + packetChannelLen);
-    
+
+    int packetLen = fixedDataLen + packetSSIDLen + packetSupportedRatesLen + packetChannelLen;
+    char innerpacket[packetLen] = { 0x00, };
+
     // fixedData 값 복사
-    memcpy(packetWirelessManagement, strFixedData, fixedDataLen);
+    memcpy(innerpacket, strFixedData, fixedDataLen);
     
     // SSID 값 복사
-    packetWirelessManagement[fixedDataLen] = 0;                 // tag id
-    packetWirelessManagement[fixedDataLen+1] = strSSIDlen;      // tag len
+    innerpacket[fixedDataLen] = 0;                 // tag id
+    innerpacket[fixedDataLen+1] = this->strSSIDLen;      // tag len
     int tagSSIDLenLoc = fixedDataLen + 1;
-    memcpy(&packetWirelessManagement[tagSSIDLenLoc+1], strSSID, strSSIDlen);
-    int tagSSIDBack = tagSSIDLenLoc + 1 + strSSIDlen;
+    memcpy(&innerpacket[tagSSIDLenLoc+1], strSSID, this->strSSIDLen);
+    int tagSSIDBack = tagSSIDLenLoc + 1 + this->strSSIDLen;
 
     // Supported Rates 값 복사
-    packetWirelessManagement[tagSSIDBack] = 1;                  // tag id
-    packetWirelessManagement[tagSSIDBack+1] = 8;                // tag len
+    innerpacket[tagSSIDBack] = 1;                  // tag id
+    innerpacket[tagSSIDBack+1] = 8;                // tag len
     int tagSupportedRatesLenLoc = tagSSIDBack + 1;
-    memcpy(&packetWirelessManagement[tagSupportedRatesLenLoc+1], strSupportRates, 8);
+    memcpy(&innerpacket[tagSupportedRatesLenLoc+1], strSupportRates, 8);
     int tagSupportedRateBack = tagSupportedRatesLenLoc + 1 + 8;
     
     // DS parameter
-    packetWirelessManagement[tagSupportedRateBack] = 3;
-    packetWirelessManagement[tagSupportedRateBack + 1] = 1;
-    packetWirelessManagement[tagSupportedRateBack + 2] = this->channel;
+    innerpacket[tagSupportedRateBack] = 3;
+    innerpacket[tagSupportedRateBack + 1] = 1;
+    innerpacket[tagSupportedRateBack + 2] = this->channel;
 
-    return packetWirelessManagement;
+    memcpy(&packet[0], innerpacket, packetLen);
+
+    return true;
 }

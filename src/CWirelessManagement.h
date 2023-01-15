@@ -61,18 +61,21 @@ class CWirelessManagement
 {
 private:
     char fixedData[12];
+    int strSSIDLen;
     char* strSSID;
     char* strSupportRates;
     int channel;
 
+
     bool setChannel();
 
 public:
-    CWirelessManagement();                      // Flooding을 위한 생성자
+    CWirelessManagement(int strSSIDLen);   // Flooding을 위한 생성자
     CWirelessManagement(const u_char* packet);  // Parsing을 위한 생성자
     ~CWirelessManagement();
 
     char* getSSID();
     int getChannel();
-    char* getFloodPacket(const char* strSSID);
+    int getFloodPacketLen();
+    bool getFloodPacket(const char* strSSID, char* packet);
 };

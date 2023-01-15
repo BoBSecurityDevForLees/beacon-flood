@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-set(TARGET_NAME beacon-flooding)
+set(TARGET_NAME beacon-flood)
 
 if(APPLE)
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../build/MacOSXRelease)
