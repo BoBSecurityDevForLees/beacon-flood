@@ -45,10 +45,6 @@ bool C80211RadioHeader::getFloodPacket(char* packet)
 
     packet[22] = this->it_signalPW;             // Antenna Signale
     packet[23] = this->it_antenna;
-
-    for(int i =0; i < 24; i++)
-        printf("%02x ", (u_char)packet[i]);
-    std::cout << std::endl;
     return true;
 }
 
