@@ -107,27 +107,21 @@ int main(int argc, char* argv[])
 
     while(true)
     {
-
         for(int i =0; i < vecBeaconFloodingPacketList.size(); i++)
         {
             u_char* packetD = vecBeaconFloodingPacketList[i].getFloodPacket();
             int len =  vecBeaconFloodingPacketList[i].getFloodPacketSize();
-            // for(int j = 0; j < vecBeaconFloodingPacketList[i].getFloodPacketSize(); j++)
-            //     printf("%02x ", packetD[j]);
-            // std::cout << std::endl;
+
             for(int k = 0; k < 1000; k++)
             {
                 int res = pcap_sendpacket(handle, reinterpret_cast<const u_char*>(packetD), len);
                 if(res != 0)
-                {
                     std::cerr << "Error" << std::endl;
-                    return -1;
-                }
             }
             
-            std::cout << "SSID: " << vecSSIDList[i] << std::endl;
+            std::cout << "SSID: " << vecSSIDList[i] <<  std::endl;
         }
-        sleep(1);
+        sleep(10);
     }
     return 0;
 }

@@ -58,7 +58,7 @@ bool C80211RadioHeader::getFloodPacket(char* packet)
     u_char channelFlags[2] = { 0xa0, 0x00 };
     memcpy(&innerPacket[16], channelFlags, 2);
 
-    innerPacket[19] = 0xd1;             // Antenna Signal
+    innerPacket[18] = 0xd1;             // Antenna Signal
     char rxflag[2] = { 0x00, 0x00 };
     memcpy(&innerPacket[20], rxflag, 2);
 

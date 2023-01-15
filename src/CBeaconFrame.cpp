@@ -6,12 +6,15 @@ C80211BeaconFrame::C80211BeaconFrame()
     // Random Library 초기화
     srand(time(NULL));
 
+    u_char byteffff[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
     // DestinationAddress Setting 
-    sprintf(this->strDestinationAddress,"%02x%02x%02x%02x%02x%02x", 255, 255, 255, 255, 255, 255);
+    memcpy(&this->strDestinationAddress, byteffff, 6);
+
+
+    u_char byteRandom[6] = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 };
 
     // Source Address Setting
-    sprintf(this->strSourceAddress, "%02x%02x%02x%02x%02x%02x", (rand()%255), (rand()%255), (rand()%255), (rand()%255),
-    (rand()%255), (rand()%255));
+    memcpy(&this->strSourceAddress, byteRandom, 6);
 
     // BSSID Setting
     // Source Address to BSSID Copy 6Byte
@@ -65,10 +68,13 @@ bool C80211BeaconFrame::getFloodBeaconFrame(char* packet)
     packetBeacon[0] = 0x80;
     packetBeacon[1] = 0x00;
     
+    // Duration Time
+    memcpy(&packetBeacon[2], this->strDuration, 2);
+    
     // Destination, SourceAddress, BSSID
-    memcpy(&packetBeacon[2], this->strDestinationAddress, 6);
-    memcpy(&packetBeacon[8], this->strSourceAddress, 6);
-    memcpy(&packetBeacon[14], this->strBSSID, 6);
+    memcpy(&packetBeacon[4], this->strDestinationAddress, 6);
+    memcpy(&packetBeacon[10], this->strSourceAddress, 6);
+    memcpy(&packetBeacon[16], this->strBSSID, 6);
     
     // Fragment, sequence number
     packetBeacon[22] = 0xC0;

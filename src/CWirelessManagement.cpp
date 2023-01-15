@@ -57,9 +57,10 @@ CWirelessManagement::~CWirelessManagement()
 
 bool CWirelessManagement::setChannel()
 {
-    srand(time(NULL));
-    // maybe check CountryCode
-    this->channel = rand()%12;
+    // srand(time(NULL));
+    // // maybe check CountryCode
+    // this->channel = rand()%12;
+    this->channel = 1;
     return true;
 }
 
@@ -75,14 +76,14 @@ int CWirelessManagement::getChannel()
 
 int CWirelessManagement::getFloodPacketLen()
 {
-    return 12 + this->strSSIDLen + 2 + 10 + 3;
+    return 12 + this->strSSIDLen + 2 + 10 + 3 + 6 + 26;
 }
 
 bool CWirelessManagement::getFloodPacket(const char* strSSID, char* packet)
 {
     int fixedDataLen = 12;
     // set fixedData to fixed data
-    u_char strFixedData[12] = { 0x26, 0xc0, 0x51, 0x83, 0xa9, 0x0c, 0x00, 0x00, 0x64, 0x00, 0x11, 0x0c };
+    u_char byteFixedData[12] = { 0x26, 0xc0, 0x51, 0x83, 0xa9, 0x0c, 0x00, 0x00, 0x64, 0x00, 0x11, 0x0c };
     
     // TagID = 0(SSID)
     int packetSSIDLen = this->strSSIDLen + 2;
@@ -91,17 +92,25 @@ bool CWirelessManagement::getFloodPacket(const char* strSSID, char* packet)
     // set Supported Rates to fixed data
     // 1, 2, 5.5, 6, 9, 12, 18
     int packetSupportedRatesLen = 10;
-    u_char strSupportedRates[8] = { 0x82, 0x84,  0x8b, 0x96, 0x0c, 0x12, 0x18, 0x24};
+    u_char byteSupportedRates[8] = { 0x82, 0x84,  0x8b, 0x96, 0x24, 0x30, 0x48, 0x6c};
 
     // TagId = 3(Channel)
     int packetChannelLen = 3;
     // 생성자를 통해 미리 채널정보를 입력해둠.
 
-    int packetLen = fixedDataLen + packetSSIDLen + packetSupportedRatesLen + packetChannelLen;
+    // TrafficIndication
+    int packetTrafficIndicationMapLen = 6;
+    u_char bytetrafficIndicationMap[packetTrafficIndicationMapLen] = { 0x05, 0x04, 0x00, 0x03, 0x00, 0x00 };
+
+    int packetVenderSpecificlen = 26;
+    u_char byteVenterSpecific[packetVenderSpecificlen] = { 0xdd, 0x18, 0x00, 0x50, 0xf2, 0x01, 0x01, 0x00,
+     0x00, 0x50, 0xf2, 0x04, 0x01, 0x00, 0x00, 0x50, 0xf2, 0x04, 0x01, 0x00, 0x00, 0x50, 0xf2, 0x02, 0x00, 0x00 }; 
+
+    int packetLen = fixedDataLen + packetSSIDLen + packetSupportedRatesLen + packetChannelLen + packetTrafficIndicationMapLen + packetVenderSpecificlen;
     char innerpacket[packetLen] = { 0x00, };
 
     // fixedData 값 복사
-    memcpy(innerpacket, strFixedData, fixedDataLen);
+    memcpy(innerpacket, byteFixedData, fixedDataLen);
     
     // SSID 값 복사
     innerpacket[fixedDataLen] = 0;                 // tag id
@@ -114,15 +123,20 @@ bool CWirelessManagement::getFloodPacket(const char* strSSID, char* packet)
     innerpacket[tagSSIDBack] = 1;                  // tag id
     innerpacket[tagSSIDBack+1] = 8;                // tag len
     int tagSupportedRatesLenLoc = tagSSIDBack + 1;
-    memcpy(&innerpacket[tagSupportedRatesLenLoc+1], strSupportRates, 8);
+    memcpy(&innerpacket[tagSupportedRatesLenLoc+1], byteSupportedRates, 8);
     int tagSupportedRateBack = tagSupportedRatesLenLoc + 1 + 8;
     
     // DS parameter
     innerpacket[tagSupportedRateBack] = 3;
     innerpacket[tagSupportedRateBack + 1] = 1;
     innerpacket[tagSupportedRateBack + 2] = this->channel;
+    int tagDSparameterBack = tagSupportedRateBack+3;
 
+    // Traffic indication Map
+    memcpy(&innerpacket[tagDSparameterBack], bytetrafficIndicationMap, packetTrafficIndicationMapLen);
+    int tagTafficIndicationMapBack = tagDSparameterBack + packetTrafficIndicationMapLen;
 
+    memcpy(&innerpacket[tagTafficIndicationMapBack], byteVenterSpecific, packetVenderSpecificlen);
 
     memcpy(&packet[0], innerpacket, packetLen);
 
