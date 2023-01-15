@@ -59,7 +59,7 @@ bool CWirelessManagement::setChannel()
 {
     srand(time(NULL));
     // maybe check CountryCode
-    this->channel = rand()%48;
+    this->channel = rand()%12;
     return true;
 }
 
@@ -121,6 +121,8 @@ bool CWirelessManagement::getFloodPacket(const char* strSSID, char* packet)
     innerpacket[tagSupportedRateBack] = 3;
     innerpacket[tagSupportedRateBack + 1] = 1;
     innerpacket[tagSupportedRateBack + 2] = this->channel;
+
+
 
     memcpy(&packet[0], innerpacket, packetLen);
 
