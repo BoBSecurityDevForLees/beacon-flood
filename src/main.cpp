@@ -78,28 +78,24 @@ int main(int argc, char* argv[])
         int strWirelessManagementSize = wirelessManagement.getFloodPacketLen();
         int totalPacketByte =  + strRadioHeaderSize + strBeaconFrameSize + strWirelessManagementSize;
         packet = (char*)malloc(totalPacketByte);
-
         radioHeader.getFloodPacket(packet);
-
         // for Debugging
         // for(int i =0; i < strRadioHeaderSize; i++)
         //     printf("%02x ", (u_char)packet[i]);
         // std::cout <<std::endl;
 
         beaconFrame.getFloodBeaconFrame(&packet[strRadioHeaderSize]);
-
         // for Debugging
-        // for(int i = strRadioHeaderSize; i < strRadioHeaderSize+strBeaconFrameSize; i++)
+        // for(int i = 0; i < strRadioHeaderSize+strBeaconFrameSize; i++)
         //     printf("%02x ", (u_char)packet[i]);
         // std::cout << std::endl;
 
         wirelessManagement.getFloodPacket(vecSSIDList[i].c_str(), &packet[strRadioHeaderSize+strBeaconFrameSize]);
-
         // for Debugging
-        // for(int i = strRadioHeaderSize+strBeaconFrameSize; i < totalPacketByte; i++)
+        // for(int i = 0; i < totalPacketByte; i++)
         //     printf("%02x ", (u_char)packet[i]);
         // std::cout << std::endl;
-        // free(packet);
+
         CBeaconFlood beacon(totalPacketByte, packet);
         vecBeaconFloodingPacketList.push_back(beacon);
         free(packet);
@@ -112,6 +108,10 @@ int main(int argc, char* argv[])
             u_char* packetD = vecBeaconFloodingPacketList[i].getFloodPacket();
             int len =  vecBeaconFloodingPacketList[i].getFloodPacketSize();
 
+            // for(int i = 0; i < len; i++)
+            //     printf("%02x ", (u_char)packetD[i]);
+            // std::cout << std::endl;
+
             for(int k = 0; k < 1000; k++)
             {
                 int res = pcap_sendpacket(handle, reinterpret_cast<const u_char*>(packetD), len);
@@ -120,8 +120,9 @@ int main(int argc, char* argv[])
             }
             
             std::cout << "SSID: " << vecSSIDList[i] <<  std::endl;
+            // return 0;
         }
-        sleep(10);
+        sleep(1);
     }
     return 0;
 }
