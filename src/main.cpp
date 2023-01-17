@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
         // 패킷을 구성하는 클래스 생성
         C80211RadioHeader radioHeader = C80211RadioHeader();
         C80211BeaconFrame beaconFrame = C80211BeaconFrame();
-        CWirelessManagement wirelessManagement = CWirelessManagement(strlen(vecSSIDList[i].c_str()));
+        CWirelessManagement wirelessManagement = CWirelessManagement(strlen(vecSSIDList[i].data()));
 
         // 패킷 길이 정보를 가져온다.
         int strRadioHeaderSize = radioHeader.getFloodPacketSize();
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
         //     printf("%02x ", (u_char)packet[i]);
         // std::cout << std::endl;
 
-        wirelessManagement.getFloodPacket(vecSSIDList[i].c_str(), &packet[strRadioHeaderSize+strBeaconFrameSize]);
+        wirelessManagement.getFloodPacket(vecSSIDList[i].data(), &packet[strRadioHeaderSize+strBeaconFrameSize]);
         // for Debugging
         // for(int i = 0; i < totalPacketByte; i++)
         //     printf("%02x ", (u_char)packet[i]);
