@@ -5,15 +5,18 @@ CBeaconFlood::CBeaconFlood(int packetSize, char* packet)
     this->packetSize = packetSize;
     this->packet = (u_char*)malloc(packetSize);
     memcpy(this->packet, packet, packetSize);
+}
 
-    // for(int i = 0; i < packetSize; i++)
-    //     printf("%02x ", this->packet[i]);
-    // std::cout << std::endl;
+CBeaconFlood::CBeaconFlood(const CBeaconFlood& beaconFlood)
+{
+    this->packetSize = beaconFlood.packetSize;
+    this->packet = (u_char*)malloc(this->packetSize);
+    memcpy(this->packet, beaconFlood.packet, packetSize);
 }
 
 CBeaconFlood::~CBeaconFlood()
 {
-    // free(this->packet);
+    free(this->packet);
 }
 
 u_char* CBeaconFlood::getFloodPacket()

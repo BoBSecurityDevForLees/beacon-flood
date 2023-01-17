@@ -10,6 +10,7 @@ private:
 
 public:
     CBeaconFlood(int packetSize, char* packet);
+    CBeaconFlood(const CBeaconFlood& beaconFlood);
     ~CBeaconFlood();
 
     u_char* getFloodPacket();
