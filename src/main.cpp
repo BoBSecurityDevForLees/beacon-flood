@@ -2,9 +2,6 @@
 #include <fstream>
 #include <pcap.h>
 #include <unistd.h>
-#include "CRadioHeader.h"
-#include "CBeaconFrame.h"
-#include "CWirelessManagement.h"
 #include "CBeaconFlood.h"
 
 void usage()
@@ -109,39 +106,8 @@ int main(int argc, char* argv[])
 
     for(int i = 0; i < vecSSIDList.size(); i++)
     {
-        char* packet;
-        // 패킷을 구성하는 클래스 생성
-        C80211RadioHeader radioHeader = C80211RadioHeader();
-        C80211BeaconFrame beaconFrame = C80211BeaconFrame();
-        CWirelessManagement wirelessManagement = CWirelessManagement(strlen(vecSSIDList[i].data()));
-
-        // 패킷 길이 정보를 가져온다.
-        int strRadioHeaderSize = radioHeader.getFloodPacketSize();
-        int strBeaconFrameSize = beaconFrame.getFloodBeaconFrameSize();
-        int strWirelessManagementSize = wirelessManagement.getFloodPacketLen();
-        int totalPacketByte =  + strRadioHeaderSize + strBeaconFrameSize + strWirelessManagementSize;
-        packet = (char*)malloc(totalPacketByte);
-        radioHeader.getFloodPacket(packet);
-        // for Debugging
-        // for(int i =0; i < strRadioHeaderSize; i++)
-        //     printf("%02x ", (u_char)packet[i]);
-        // std::cout <<std::endl;
-
-        beaconFrame.getFloodBeaconFrame(&packet[strRadioHeaderSize]);
-        // for Debugging
-        // for(int i = 0; i < strRadioHeaderSize+strBeaconFrameSize; i++)
-        //     printf("%02x ", (u_char)packet[i]);
-        // std::cout << std::endl;
-
-        wirelessManagement.getFloodPacket(vecSSIDList[i].data(), &packet[strRadioHeaderSize+strBeaconFrameSize]);
-        // for Debugging
-        // for(int i = 0; i < totalPacketByte; i++)
-        //     printf("%02x ", (u_char)packet[i]);
-        // std::cout << std::endl;
-
-        CBeaconFlood beacon(totalPacketByte, packet);
+        CBeaconFlood beacon(vecSSIDList[i].data());
         vecBeaconFloodingPacketList.push_back(beacon);
-        free(packet);
     }
 
     while(true)

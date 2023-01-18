@@ -71,6 +71,6 @@ public:
     CWirelessManagement(int strSSIDLen);
     ~CWirelessManagement();
 
-    int getFloodPacketLen();
+    int getFloodPacketSize();
     bool getFloodPacket(const char* strSSID, char* packet);
 };

@@ -2,14 +2,21 @@
 
 #include <iostream>
 #include <cstring>
+#include "CRadioHeader.h"
+#include "CBeaconFrame.h"
+#include "CWirelessManagement.h"
 
 class CBeaconFlood{
 private:
+    C80211RadioHeader* radioHeader;
+    C80211BeaconFrame* beaconFrame;
+    CWirelessManagement* wirelessmanagement;
+
     int packetSize;
-    u_char* packet;
+    char* packet;
 
 public:
-    CBeaconFlood(int packetSize, char* packet);
+    CBeaconFlood(const char* strSSID);
     CBeaconFlood(const CBeaconFlood& beaconFlood);
     ~CBeaconFlood();
 

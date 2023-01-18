@@ -28,7 +28,7 @@ CWirelessManagement::~CWirelessManagement()
 
 }
 
-int CWirelessManagement::getFloodPacketLen()
+int CWirelessManagement::getFloodPacketSize()
 {
     return 12 + this->strSSIDLen + 2 + 10 + 3 + 6 + 26;
 }
